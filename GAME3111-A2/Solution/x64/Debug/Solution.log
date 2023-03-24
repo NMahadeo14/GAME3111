@@ -1,7 +1,2 @@
 ﻿  Week7-1-TreeBillboardsApp.cpp
-C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\Solution\Week7-1-TreeBillboardsApp.cpp(736,41): error C2065: 'mWaves': undeclared identifier
-C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\Solution\Week7-1-TreeBillboardsApp.cpp(737,2): error C2065: 'mWaves': undeclared identifier
-C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\Solution\Week7-1-TreeBillboardsApp.cpp(740,10): error C2065: 'mWaves': undeclared identifier
-C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\Solution\Week7-1-TreeBillboardsApp.cpp(741,10): error C2065: 'mWaves': undeclared identifier
-C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\Solution\Week7-1-TreeBillboardsApp.cpp(759,20): error C2065: 'mWaves': undeclared identifier
-C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\Solution\Week7-1-TreeBillboardsApp.cpp(905,2): error C2065: 'mWavesRitem': undeclared identifier
+  Solution.vcxproj -> C:\Users\devin\source\DirectX-master\DirectX-master\GAME3111-A2\x64\Debug\Project.exe
