@@ -17,7 +17,7 @@
       <UniqueIdentifier>{ae1ec4d1-38ee-46bb-a424-ab7daef7e571}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders">
-      <UniqueIdentifier>{67a73959-2534-4b6d-af88-459fb83d899e}</UniqueIdentifier>
+      <UniqueIdentifier>{05f627ba-887c-4e68-9438-0d20cc141be7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +48,7 @@
     <ClCompile Include="Waves.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Week7-1-TreeBillboardsApp.cpp">
+    <ClCompile Include="Week7-2-TreeBillboardsApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
