@@ -102,6 +102,8 @@ private:
     void BuildLandGeometry();
     void BuildWavesGeometry();
 	void BuildBoxGeometry();
+	void BuildConeGeometry();
+	void BuildCylinderGeometry();
 	void BuildTreeSpritesGeometry();
     void BuildPSOs();
     void BuildFrameResources();
@@ -213,6 +215,8 @@ bool TreeBillboardsApp::Initialize()
     BuildLandGeometry();
     BuildWavesGeometry();
 	BuildBoxGeometry();
+	BuildConeGeometry();
+	BuildCylinderGeometry();
 	BuildTreeSpritesGeometry();
 	BuildMaterials();
     BuildRenderItems();
@@ -694,7 +698,7 @@ void TreeBillboardsApp::BuildShadersAndInputLayouts()
 	};
 
 	mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
+	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
 	
 	mShaders["treeSpriteVS"] = d3dUtil::CompileShader(L"Shaders\\TreeSprite.hlsl", nullptr, "VS", "vs_5_1");
@@ -718,7 +722,7 @@ void TreeBillboardsApp::BuildShadersAndInputLayouts()
 void TreeBillboardsApp::BuildLandGeometry()
 {
     GeometryGenerator geoGen;
-    GeometryGenerator::MeshData grid = geoGen.CreateGrid(60.0f, 60.0f, 50, 50);
+    GeometryGenerator::MeshData grid = geoGen.CreateGrid(70.0f, 50.0f, 50, 50);
 
     //
     // Extract the vertex elements we are interested and apply the height function to
@@ -731,7 +735,7 @@ void TreeBillboardsApp::BuildLandGeometry()
     {
         auto& p = grid.Vertices[i].Position;
         vertices[i].Pos = p;
-		vertices[i].Pos.y = 1;//GetHillsHeight(p.x, p.z);
+		vertices[i].Pos.y = 3;//GetHillsHeight(p.x, p.z);
 		vertices[i].Normal = GetHillsNormal(p.x, p.z);
 		vertices[i].TexC = grid.Vertices[i].TexC;
     }
@@ -830,7 +834,7 @@ void TreeBillboardsApp::BuildWavesGeometry()
 void TreeBillboardsApp::BuildBoxGeometry()
 {
 	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
+	GeometryGenerator::MeshData box = geoGen.CreateBox(10.0f, 10.0f, 10.0f, 3);
 
 	std::vector<Vertex> vertices(box.Vertices.size());
 	for (size_t i = 0; i < box.Vertices.size(); ++i)
@@ -876,6 +880,104 @@ void TreeBillboardsApp::BuildBoxGeometry()
 	mGeometries["boxGeo"] = std::move(geo);
 }
 
+void TreeBillboardsApp::BuildConeGeometry()
+{
+	GeometryGenerator geoGen;
+	GeometryGenerator::MeshData cone = geoGen.CreateCylinder(8.0f, 0.0f, 40.0f, 20, 20);
+
+	std::vector<Vertex> vertices(cone.Vertices.size());
+	for (size_t i = 0; i < cone.Vertices.size(); ++i)
+	{
+		auto& p = cone.Vertices[i].Position;
+		vertices[i].Pos = p;
+		vertices[i].Normal = cone.Vertices[i].Normal;
+		vertices[i].TexC = cone.Vertices[i].TexC;
+	}
+
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+
+	std::vector<std::uint16_t> indices = cone.GetIndices16();
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+	auto geo = std::make_unique<MeshGeometry>();
+	geo->Name = "coneGeo";
+
+	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+
+	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+	geo->VertexByteStride = sizeof(Vertex);
+	geo->VertexBufferByteSize = vbByteSize;
+	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	geo->IndexBufferByteSize = ibByteSize;
+
+	SubmeshGeometry submesh;
+	submesh.IndexCount = (UINT)indices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
+
+	geo->DrawArgs["cone"] = submesh;
+
+	mGeometries["coneGeo"] = std::move(geo);
+}
+
+void TreeBillboardsApp::BuildCylinderGeometry()
+{
+	GeometryGenerator geoGen;
+	GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(8.0f, 8.0f, 40.0f, 20, 20);
+
+	std::vector<Vertex> vertices(cylinder.Vertices.size());
+	for (size_t i = 0; i < cylinder.Vertices.size(); ++i)
+	{
+		auto& p = cylinder.Vertices[i].Position;
+		vertices[i].Pos = p;
+		vertices[i].Normal = cylinder.Vertices[i].Normal;
+		vertices[i].TexC = cylinder.Vertices[i].TexC;
+	}
+
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+
+	std::vector<std::uint16_t> indices = cylinder.GetIndices16();
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+	auto geo = std::make_unique<MeshGeometry>();
+	geo->Name = "cylinderGeo";
+
+	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+
+	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+	geo->VertexByteStride = sizeof(Vertex);
+	geo->VertexBufferByteSize = vbByteSize;
+	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	geo->IndexBufferByteSize = ibByteSize;
+
+	SubmeshGeometry submesh;
+	submesh.IndexCount = (UINT)indices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
+
+	geo->DrawArgs["cylinder"] = submesh;
+
+	mGeometries["cylinderGeo"] = std::move(geo);
+}
+
 void TreeBillboardsApp::BuildTreeSpritesGeometry()
 {
 	//step5
@@ -885,13 +987,13 @@ void TreeBillboardsApp::BuildTreeSpritesGeometry()
 		XMFLOAT2 Size;
 	};
 
-	static const int treeCount = 16;
+	static const int treeCount = 5;
 	std::array<TreeSpriteVertex, 16> vertices;
 	for(UINT i = 0; i < treeCount; ++i)
 	{
-		float x = MathHelper::RandF(-45.0f, 45.0f);
-		float z = MathHelper::RandF(-45.0f, 45.0f);
-		float y = GetHillsHeight(x, z);
+		float x = MathHelper::RandF(-25.0f, 25.0f);
+		float z = MathHelper::RandF(-25.0f, 25.0f);
+		float y = 4;
 
 		// Move tree slightly above land height.
 		y += 8.0f;
@@ -1121,7 +1223,7 @@ void TreeBillboardsApp::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 
 	auto boxRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&boxRitem->World, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
+	XMStoreFloat4x4(&boxRitem->World, XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	boxRitem->ObjCBIndex = 2;
 	boxRitem->Mat = mMaterials["wirefence"].get();
 	boxRitem->Geo = mGeometries["boxGeo"].get();
@@ -1132,9 +1234,149 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(boxRitem.get());
 
+	//////////////////////////////////////////////////////////////
+	
+	// Box castle
+	auto boxRitem1 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&boxRitem1->World, XMMatrixScaling(10.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0.0f, 0.0f));
+	boxRitem1->ObjCBIndex = 3;
+	boxRitem1->Geo = mGeometries["boxGeo"].get();
+	boxRitem1->Mat = mMaterials["wirefence"].get();
+	boxRitem1->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	boxRitem1->IndexCount = boxRitem1->Geo->DrawArgs["box"].IndexCount;  // 36
+	boxRitem1->StartIndexLocation = boxRitem1->Geo->DrawArgs["box"].StartIndexLocation; // 0
+	boxRitem1->BaseVertexLocation = boxRitem1->Geo->DrawArgs["box"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(boxRitem1.get());
+	mAllRitems.push_back(std::move(boxRitem1));
+
+	// Cylinder towers
+	auto cylinderRitem1 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&cylinderRitem1->World, XMMatrixScaling(0.2f, 0.3f, 0.2f) * XMMatrixTranslation(50.0f, 40.0f, 4.0f));
+	cylinderRitem1->ObjCBIndex = 4;
+	cylinderRitem1->Geo = mGeometries["cylinderGeo"].get();
+	cylinderRitem1->Mat = mMaterials["wirefence"].get();
+	cylinderRitem1->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	cylinderRitem1->IndexCount = cylinderRitem1->Geo->DrawArgs["cylinder"].IndexCount;  // 36
+	cylinderRitem1->StartIndexLocation = cylinderRitem1->Geo->DrawArgs["cylinder"].StartIndexLocation; // 0
+	cylinderRitem1->BaseVertexLocation = cylinderRitem1->Geo->DrawArgs["cylinder"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem1.get());
+	mAllRitems.push_back(std::move(cylinderRitem1));
+
+	auto cylinderRitem2 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&cylinderRitem2->World, XMMatrixScaling(0.2f, 0.3f, 0.2f) * XMMatrixTranslation(50.0f, 30.0f, 4.0f));
+	cylinderRitem2->ObjCBIndex = 5;
+	cylinderRitem2->Geo = mGeometries["cylinderGeo"].get();
+	cylinderRitem2->Mat = mMaterials["wirefence"].get();
+	cylinderRitem2->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	cylinderRitem2->IndexCount = cylinderRitem2->Geo->DrawArgs["cylinder"].IndexCount;  // 36
+	cylinderRitem2->StartIndexLocation = cylinderRitem2->Geo->DrawArgs["cylinder"].StartIndexLocation; // 0
+	cylinderRitem2->BaseVertexLocation = cylinderRitem2->Geo->DrawArgs["cylinder"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem2.get());
+	mAllRitems.push_back(std::move(cylinderRitem2));
+
+	auto cylinderRitem3 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&cylinderRitem3->World, XMMatrixScaling(0.2f, 0.3f, 0.2f) * XMMatrixTranslation(50.0f, 20.0f, 4.0f));
+	cylinderRitem3->ObjCBIndex = 6;
+	cylinderRitem3->Geo = mGeometries["cylinderGeo"].get();
+	cylinderRitem3->Mat = mMaterials["wirefence"].get();
+	cylinderRitem3->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	cylinderRitem3->IndexCount = cylinderRitem3->Geo->DrawArgs["cylinder"].IndexCount;  // 36
+	cylinderRitem3->StartIndexLocation = cylinderRitem3->Geo->DrawArgs["cylinder"].StartIndexLocation; // 0
+	cylinderRitem3->BaseVertexLocation = cylinderRitem3->Geo->DrawArgs["cylinder"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem3.get());
+	mAllRitems.push_back(std::move(cylinderRitem3));
+
+	auto cylinderRitem4 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&cylinderRitem4->World, XMMatrixScaling(0.2f, 0.3f, 0.2f) * XMMatrixTranslation(50.0f, 10.0f, 4.0f));
+	cylinderRitem4->ObjCBIndex = 7;
+	cylinderRitem4->Geo = mGeometries["cylinderGeo"].get();
+	cylinderRitem4->Mat = mMaterials["wirefence"].get();
+	cylinderRitem4->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	cylinderRitem4->IndexCount = cylinderRitem4->Geo->DrawArgs["cylinder"].IndexCount;  // 36
+	cylinderRitem4->StartIndexLocation = cylinderRitem4->Geo->DrawArgs["cylinder"].StartIndexLocation; // 0
+	cylinderRitem4->BaseVertexLocation = cylinderRitem4->Geo->DrawArgs["cylinder"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem4.get());
+	mAllRitems.push_back(std::move(cylinderRitem4));
+
+	// Cone rooftops
+	auto coneRitem1 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem1->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.8f, 10.2f, 4.0f));
+	coneRitem1->ObjCBIndex = 8;
+	coneRitem1->Geo = mGeometries["coneGeo"].get();
+	coneRitem1->Mat = mMaterials["wirefence"].get();
+	coneRitem1->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem1->IndexCount = coneRitem1->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem1->StartIndexLocation = coneRitem1->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem1->BaseVertexLocation = coneRitem1->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem1.get());
+	mAllRitems.push_back(std::move(coneRitem1));
+
+	auto coneRitem2 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem2->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.8f, 20.2f, 4.0f));
+	coneRitem2->ObjCBIndex = 9;
+	coneRitem2->Geo = mGeometries["coneGeo"].get();
+	coneRitem2->Mat = mMaterials["wirefence"].get();
+	coneRitem2->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem2->IndexCount = coneRitem2->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem2->StartIndexLocation = coneRitem2->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem2->BaseVertexLocation = coneRitem2->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem2.get());
+	mAllRitems.push_back(std::move(coneRitem2));
+
+	auto coneRitem3 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem3->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.8f, 30.2f, 4.0f));
+	coneRitem3->ObjCBIndex = 10;
+	coneRitem3->Geo = mGeometries["coneGeo"].get();
+	coneRitem3->Mat = mMaterials["wirefence"].get();
+	coneRitem3->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem3->IndexCount = coneRitem3->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem3->StartIndexLocation = coneRitem3->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem3->BaseVertexLocation = coneRitem3->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem3.get());
+	mAllRitems.push_back(std::move(coneRitem3));
+
+	auto coneRitem4 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem4->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.8f, 40.2f, 4.0f));
+	coneRitem4->ObjCBIndex = 11;
+	coneRitem4->Geo = mGeometries["coneGeo"].get();
+	coneRitem4->Mat = mMaterials["wirefence"].get();
+	coneRitem4->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem4->IndexCount = coneRitem4->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem4->StartIndexLocation = coneRitem4->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem4->BaseVertexLocation = coneRitem4->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem4.get());
+	mAllRitems.push_back(std::move(coneRitem4));
+
+	auto coneRitem5 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem5->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.8f, 50.2f, 4.0f));
+	coneRitem5->ObjCBIndex = 12;
+	coneRitem5->Geo = mGeometries["coneGeo"].get();
+	coneRitem5->Mat = mMaterials["wirefence"].get();
+	coneRitem5->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem5->IndexCount = coneRitem5->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem5->StartIndexLocation = coneRitem5->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem5->BaseVertexLocation = coneRitem5->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem5.get());
+	mAllRitems.push_back(std::move(coneRitem5));
+
+	// Box ground
+	auto boxRitem3 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&boxRitem3->World, XMMatrixScaling(1.6f, 0.1f, 1.4f)* XMMatrixTranslation(0.0f, -5.0f, 0.0f));
+	boxRitem3->ObjCBIndex = 13;
+	boxRitem3->Geo = mGeometries["boxGeo"].get();
+	boxRitem3->Mat = mMaterials["wirefence"].get();
+	boxRitem3->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	boxRitem3->IndexCount = boxRitem3->Geo->DrawArgs["box"].IndexCount;  // 36
+	boxRitem3->StartIndexLocation = boxRitem3->Geo->DrawArgs["box"].StartIndexLocation; // 0
+	boxRitem3->BaseVertexLocation = boxRitem3->Geo->DrawArgs["box"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(boxRitem3.get());
+	mAllRitems.push_back(std::move(boxRitem3));
+
+	//////////////////////////////////////////////////////////
+	
 	auto treeSpritesRitem = std::make_unique<RenderItem>();
 	treeSpritesRitem->World = MathHelper::Identity4x4();
-	treeSpritesRitem->ObjCBIndex = 3;
+	treeSpritesRitem->ObjCBIndex = 14;
 	treeSpritesRitem->Mat = mMaterials["treeSprites"].get();
 	treeSpritesRitem->Geo = mGeometries["treeSpritesGeo"].get();
 	//step2
