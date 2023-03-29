@@ -671,10 +671,10 @@ void TreeBillboardsApp::BuildDescriptorHeaps()
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
 	auto fenceTex = mTextures["fenceTex"]->Resource;
-	auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
 	auto brickTex = mTextures["brickTex"]->Resource;
 	auto tileTex = mTextures["tileTex"]->Resource;
 	auto woodTex = mTextures["woodTex"]->Resource;
+	auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -699,6 +699,23 @@ void TreeBillboardsApp::BuildDescriptorHeaps()
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
+	srvDesc.Format = brickTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(brickTex.Get(), &srvDesc, hDescriptor);
+
+	//next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = tileTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(tileTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = woodTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(woodTex.Get(), &srvDesc, hDescriptor);
+
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
 	auto desc = treeArrayTex->GetDesc();
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 	srvDesc.Format = treeArrayTex->GetDesc().Format;
@@ -707,6 +724,7 @@ void TreeBillboardsApp::BuildDescriptorHeaps()
 	srvDesc.Texture2DArray.FirstArraySlice = 0;
 	srvDesc.Texture2DArray.ArraySize = treeArrayTex->GetDesc().DepthOrArraySize;
 	md3dDevice->CreateShaderResourceView(treeArrayTex.Get(), &srvDesc, hDescriptor);
+
 }
 
 void TreeBillboardsApp::BuildShadersAndInputLayouts()
@@ -1207,35 +1225,35 @@ void TreeBillboardsApp::BuildMaterials()
 
 	auto treeSprites = std::make_unique<Material>();
 	treeSprites->Name = "treeSprites";
-	treeSprites->MatCBIndex = 3;
-	treeSprites->DiffuseSrvHeapIndex = 3;
+	treeSprites->MatCBIndex = 6;
+	treeSprites->DiffuseSrvHeapIndex = 6;
 	treeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	treeSprites->Roughness = 0.125f;
 
 	auto bricks = std::make_unique<Material>();
 	bricks->Name = "bricks";
-	bricks->MatCBIndex = 4;
-	bricks->DiffuseSrvHeapIndex = 4;
-	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.125f;
+	bricks->MatCBIndex = 3;
+	bricks->DiffuseSrvHeapIndex = 3;
+	bricks->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	bricks->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	bricks->Roughness = 0.25f;
 
 	auto tiles = std::make_unique<Material>();
 	tiles->Name = "tiles";
-	tiles->MatCBIndex = 5;
-	tiles->DiffuseSrvHeapIndex = 5;
-	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.125f;
+	tiles->MatCBIndex = 4;
+	tiles->DiffuseSrvHeapIndex = 4;
+	tiles->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	tiles->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	tiles->Roughness = 0.25f;
 
 	auto wood = std::make_unique<Material>();
 	wood->Name = "wood";
-	wood->MatCBIndex = 6;
-	wood->DiffuseSrvHeapIndex = 6;
-	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.125f;
+	wood->MatCBIndex = 5;
+	wood->DiffuseSrvHeapIndex = 5;
+	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	wood->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	wood->Roughness = 0.125f;
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
