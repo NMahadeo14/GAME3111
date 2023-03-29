@@ -584,7 +584,7 @@ void TreeBillboardsApp::LoadTextures()
 
 	auto tileTex = std::make_unique<Texture>();
 	tileTex->Name = "tileTex";
-	tileTex->Filename = L"../../Textures/tile.dds";
+	tileTex->Filename = L"../../Textures/bricks3.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 		mCommandList.Get(), tileTex->Filename.c_str(),
 		tileTex->Resource, tileTex->UploadHeap));
@@ -1217,25 +1217,25 @@ void TreeBillboardsApp::BuildMaterials()
 	bricks->Name = "bricks";
 	bricks->MatCBIndex = 4;
 	bricks->DiffuseSrvHeapIndex = 4;
-	bricks->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	bricks->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	bricks->Roughness = 0.25f;
+	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	grass->Roughness = 0.125f;
 
 	auto tiles = std::make_unique<Material>();
 	tiles->Name = "tiles";
 	tiles->MatCBIndex = 5;
 	tiles->DiffuseSrvHeapIndex = 5;
-	tiles->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	tiles->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	tiles->Roughness = 0.25f;
+	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	grass->Roughness = 0.125f;
 
 	auto wood = std::make_unique<Material>();
 	wood->Name = "wood";
 	wood->MatCBIndex = 6;
 	wood->DiffuseSrvHeapIndex = 6;
-	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	wood->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	wood->Roughness = 0.125f;
+	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	grass->Roughness = 0.125f;
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
@@ -1401,7 +1401,7 @@ void TreeBillboardsApp::BuildRenderItems()
 	mAllRitems.push_back(std::move(coneRitem4));
 
 	auto coneRitem5 = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&coneRitem5->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(0.0f, 10.0f, 10.0f));
+	XMStoreFloat4x4(&coneRitem5->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(5.5f, 16.0f, -15.0f));
 	coneRitem5->ObjCBIndex = 12;
 	coneRitem5->Geo = mGeometries["coneGeo"].get();
 	coneRitem5->Mat = mMaterials["tiles"].get();
@@ -1412,10 +1412,22 @@ void TreeBillboardsApp::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem5.get());
 	mAllRitems.push_back(std::move(coneRitem5));
 
+	auto coneRitem6 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem6->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.5f, 16.0f, -15.0f));
+	coneRitem6->ObjCBIndex = 13;
+	coneRitem6->Geo = mGeometries["coneGeo"].get();
+	coneRitem6->Mat = mMaterials["tiles"].get();
+	coneRitem6->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem6->IndexCount = coneRitem6->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem6->StartIndexLocation = coneRitem6->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem6->BaseVertexLocation = coneRitem6->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem6.get());
+	mAllRitems.push_back(std::move(coneRitem6));
+
 	// WALL BOXES
 	auto boxRitem3 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&boxRitem3->World, XMMatrixScaling(2.8f, 0.8f, 0.1f)* XMMatrixTranslation(-18.0f, 6.5f, -15.0f));
-	boxRitem3->ObjCBIndex = 13;
+	boxRitem3->ObjCBIndex = 14;
 	boxRitem3->Geo = mGeometries["boxGeo"].get();
 	boxRitem3->Mat = mMaterials["bricks"].get();
 	boxRitem3->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1427,7 +1439,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto boxRitem4 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&boxRitem4->World, XMMatrixScaling(2.8f, 0.8f, 0.1f)* XMMatrixTranslation(18.0f, 6.5f, -15.0f));
-	boxRitem4->ObjCBIndex = 14;
+	boxRitem4->ObjCBIndex = 15;
 	boxRitem4->Geo = mGeometries["boxGeo"].get();
 	boxRitem4->Mat = mMaterials["bricks"].get();
 	boxRitem4->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1439,7 +1451,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto boxRitem5 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&boxRitem5->World, XMMatrixScaling(6.2f, 0.8f, 0.1f)* XMMatrixTranslation(0.0f, 6.5f, 22.0f));
-	boxRitem5->ObjCBIndex = 15;
+	boxRitem5->ObjCBIndex = 16;
 	boxRitem5->Geo = mGeometries["boxGeo"].get();
 	boxRitem5->Mat = mMaterials["bricks"].get();
 	boxRitem5->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1451,7 +1463,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto boxRitem6 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&boxRitem6->World, XMMatrixScaling(0.1f, 0.8f, 3.6f)* XMMatrixTranslation(32.0f, 6.5f, 3.0f));
-	boxRitem6->ObjCBIndex = 16;
+	boxRitem6->ObjCBIndex = 17;
 	boxRitem6->Geo = mGeometries["boxGeo"].get();
 	boxRitem6->Mat = mMaterials["bricks"].get();
 	boxRitem6->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1463,7 +1475,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto boxRitem7 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&boxRitem7->World, XMMatrixScaling(0.1f, 0.8f, 3.6f)* XMMatrixTranslation(-32.0f, 6.5f, 3.0f));
-	boxRitem7->ObjCBIndex = 17;
+	boxRitem7->ObjCBIndex = 18;
 	boxRitem7->Geo = mGeometries["boxGeo"].get();
 	boxRitem7->Mat = mMaterials["bricks"].get();
 	boxRitem7->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1473,11 +1485,36 @@ void TreeBillboardsApp::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(boxRitem7.get());
 	mAllRitems.push_back(std::move(boxRitem7));
 
+	// GATE TOWER CYLINDERS
+	auto cylinderRitem5 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&cylinderRitem5->World, XMMatrixScaling(0.2f, 0.3f, 0.2f)* XMMatrixTranslation(5.5f, 9.0f, -15.0f));
+	cylinderRitem5->ObjCBIndex = 19;
+	cylinderRitem5->Geo = mGeometries["cylinderGeo"].get();
+	cylinderRitem5->Mat = mMaterials["bricks"].get();
+	cylinderRitem5->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	cylinderRitem5->IndexCount = cylinderRitem5->Geo->DrawArgs["cylinder"].IndexCount;  // 36
+	cylinderRitem5->StartIndexLocation = cylinderRitem5->Geo->DrawArgs["cylinder"].StartIndexLocation; // 0
+	cylinderRitem5->BaseVertexLocation = cylinderRitem5->Geo->DrawArgs["cylinder"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem5.get());
+	mAllRitems.push_back(std::move(cylinderRitem5));
+
+	auto cylinderRitem6 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&cylinderRitem6->World, XMMatrixScaling(0.2f, 0.3f, 0.2f)* XMMatrixTranslation(-5.5f, 9.0f, -15.0f));
+	cylinderRitem6->ObjCBIndex = 20;
+	cylinderRitem6->Geo = mGeometries["cylinderGeo"].get();
+	cylinderRitem6->Mat = mMaterials["bricks"].get();
+	cylinderRitem6->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	cylinderRitem6->IndexCount = cylinderRitem6->Geo->DrawArgs["cylinder"].IndexCount;  // 36
+	cylinderRitem6->StartIndexLocation = cylinderRitem6->Geo->DrawArgs["cylinder"].StartIndexLocation; // 0
+	cylinderRitem6->BaseVertexLocation = cylinderRitem6->Geo->DrawArgs["cylinder"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem6.get());
+	mAllRitems.push_back(std::move(cylinderRitem6));
+
 	//////////////////////////////////////////////////////////
 	
 	auto treeSpritesRitem = std::make_unique<RenderItem>();
 	treeSpritesRitem->World = MathHelper::Identity4x4();
-	treeSpritesRitem->ObjCBIndex = 18;
+	treeSpritesRitem->ObjCBIndex = 21;
 	treeSpritesRitem->Mat = mMaterials["treeSprites"].get();
 	treeSpritesRitem->Geo = mGeometries["treeSpritesGeo"].get();
 	//step2
