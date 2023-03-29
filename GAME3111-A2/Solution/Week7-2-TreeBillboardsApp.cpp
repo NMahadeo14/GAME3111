@@ -1568,7 +1568,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto cylinderRitem8 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&cylinderRitem8->World, XMMatrixScaling(0.2f, 0.5f, 0.2f)* XMMatrixTranslation(5.0f, 12.0f, 5.0f));
-	cylinderRitem8->ObjCBIndex = 26;
+	cylinderRitem8->ObjCBIndex = 24;
 	cylinderRitem8->Geo = mGeometries["cylinderGeo"].get();
 	cylinderRitem8->Mat = mMaterials["bricks"].get();
 	cylinderRitem8->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1580,7 +1580,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto cylinderRitem9 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&cylinderRitem9->World, XMMatrixScaling(0.2f, 0.5f, 0.2f)* XMMatrixTranslation(-5.0f, 12.0f, 15.0f));
-	cylinderRitem9->ObjCBIndex = 24;
+	cylinderRitem9->ObjCBIndex = 25;
 	cylinderRitem9->Geo = mGeometries["cylinderGeo"].get();
 	cylinderRitem9->Mat = mMaterials["bricks"].get();
 	cylinderRitem9->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1592,7 +1592,7 @@ void TreeBillboardsApp::BuildRenderItems()
 
 	auto cylinderRitem10 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&cylinderRitem10->World, XMMatrixScaling(0.2f, 0.5f, 0.2f)* XMMatrixTranslation(5.0f, 12.0f, 15.0f));
-	cylinderRitem10->ObjCBIndex = 25;
+	cylinderRitem10->ObjCBIndex = 26;
 	cylinderRitem10->Geo = mGeometries["cylinderGeo"].get();
 	cylinderRitem10->Mat = mMaterials["bricks"].get();
 	cylinderRitem10->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -1602,11 +1602,60 @@ void TreeBillboardsApp::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(cylinderRitem10.get());
 	mAllRitems.push_back(std::move(cylinderRitem10));
 
+	// CASTLE ROOFTOP CONES
+	auto coneRitem7 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem7->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(5.0f, 24.0f, 5.0f));
+	coneRitem7->ObjCBIndex = 27;
+	coneRitem7->Geo = mGeometries["coneGeo"].get();
+	coneRitem7->Mat = mMaterials["tiles"].get();
+	coneRitem7->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem7->IndexCount = coneRitem7->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem7->StartIndexLocation = coneRitem7->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem7->BaseVertexLocation = coneRitem7->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem7.get());
+	mAllRitems.push_back(std::move(coneRitem7));
+
+	auto coneRitem8 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem8->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.0f, 24.0f, 5.0f));
+	coneRitem8->ObjCBIndex = 28;
+	coneRitem8->Geo = mGeometries["coneGeo"].get();
+	coneRitem8->Mat = mMaterials["tiles"].get();
+	coneRitem8->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem8->IndexCount = coneRitem8->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem8->StartIndexLocation = coneRitem8->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem8->BaseVertexLocation = coneRitem8->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem8.get());
+	mAllRitems.push_back(std::move(coneRitem8));
+
+	auto coneRitem9 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem9->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(5.0f, 24.0f, 15.0f));
+	coneRitem9->ObjCBIndex = 29;
+	coneRitem9->Geo = mGeometries["coneGeo"].get();
+	coneRitem9->Mat = mMaterials["tiles"].get();
+	coneRitem9->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem9->IndexCount = coneRitem9->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem9->StartIndexLocation = coneRitem9->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem9->BaseVertexLocation = coneRitem9->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem9.get());
+	mAllRitems.push_back(std::move(coneRitem9));
+
+	auto coneRitem10 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&coneRitem10->World, XMMatrixScaling(0.3f, 0.1f, 0.3f)* XMMatrixTranslation(-5.0f, 24.0f, 15.0f));
+	coneRitem10->ObjCBIndex = 30;
+	coneRitem10->Geo = mGeometries["coneGeo"].get();
+	coneRitem10->Mat = mMaterials["tiles"].get();
+	coneRitem10->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	coneRitem10->IndexCount = coneRitem10->Geo->DrawArgs["cone"].IndexCount;  // 36
+	coneRitem10->StartIndexLocation = coneRitem10->Geo->DrawArgs["cone"].StartIndexLocation; // 0
+	coneRitem10->BaseVertexLocation = coneRitem10->Geo->DrawArgs["cone"].BaseVertexLocation; // 0
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(coneRitem10.get());
+	mAllRitems.push_back(std::move(coneRitem10));
+
 	//////////////////////////////////////////////////////////
 	
 	auto treeSpritesRitem = std::make_unique<RenderItem>();
 	treeSpritesRitem->World = MathHelper::Identity4x4();
-	treeSpritesRitem->ObjCBIndex = 27;
+	treeSpritesRitem->ObjCBIndex = 31;
 	treeSpritesRitem->Mat = mMaterials["treeSprites"].get();
 	treeSpritesRitem->Geo = mGeometries["treeSpritesGeo"].get();
 	//step2
