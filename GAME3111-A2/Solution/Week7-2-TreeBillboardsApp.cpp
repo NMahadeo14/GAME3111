@@ -1,12 +1,10 @@
 /** @file Week7-2-TreeBillboardsApp.cpp
- *  @brief Tree Billboarding Demo
- *   Adding Billboarding to our previous Hills, Mountain, Crate, and Wave Demo
  * 
  *   Controls:
  *   Hold the left mouse button down and move the mouse to rotate.
  *   Hold the right mouse button down and move the mouse to zoom in and out.
  *
- *  @author Hooman Salamat
+ *  @authors Devin & Migel 
  */
 
 #include "../../Common/d3dApp.h"
@@ -507,6 +505,9 @@ void TreeBillboardsApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
 	mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
 	mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+
+	mMainPassCB.Lights[3].Position = { 0.0f, 8.0f, 2.0f };
+	mMainPassCB.Lights[3].Strength = { 1.0f, 0.0f, 0.0f };
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
